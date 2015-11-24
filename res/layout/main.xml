@@ -1,8 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
         >
-</LinearLayout>
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Discover devices"
+            android:id="@+id/Button_Discover"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            />
+    <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ListDevices" android:layout_centerHorizontal="true"
+            android:layout_below="@+id/Button_Discover"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"/>
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/chatTextView"
+              android:layout_below="@id/ListDevices"
+              android:text=">"
+              android:visibility="gone"
+            />
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/SendButton"
+            android:layout_below="@id/chatTextView"
+            android:layout_alignParentRight="true"
+            android:text="Send"
+            android:visibility="gone"
+            />
+    <EditText android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/message"
+              android:layout_toLeftOf="@id/SendButton"
+              android:layout_below="@id/chatTextView"
+              android:text="Hello RadioWifi"
+              android:visibility="gone"
+            />
 
+</RelativeLayout>
