@@ -26,6 +26,7 @@ public class RadioSetWiFi extends Activity
     _listDevices.setAdapter(new ArrayAdapter<>(this, R.layout.item, _testListView));
     _listDevices.setOnItemClickListener(new AdapterView.OnItemClickListener()
     {
+      
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id)
       {
