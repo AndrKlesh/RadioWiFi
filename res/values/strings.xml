@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">RadioWiFi</string>
+    <string name="discover_button">Discover devices</string>
+    <string name="send_button">Send</string>
+    <string name="hello">Hello RadioWifi</string>
+    <string name="start_message_in_chat"><![CDATA[>]]></string>
 </resources>
