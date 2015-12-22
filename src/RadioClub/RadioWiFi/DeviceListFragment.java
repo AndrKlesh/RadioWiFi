@@ -24,9 +24,10 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         this.setListAdapter(new ArrayAdapter<>(getActivity(), R.layout.list_view_item, peers));
     }
 
+
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-
+        ((RadioSetWiFiActivity)getActivity()).connect(peers.get(position));
     }
 
 
@@ -36,5 +37,5 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         peers.clear();
         peers.addAll(peerList.getDeviceList());
         ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
-        }
+    }
 }

@@ -37,6 +37,11 @@ public class ChatFragment extends Fragment {
             }
         });
 
+        mContentView.setVisibility(View.GONE);
         return mContentView;
+    }
+
+    public void resetViews() {
+
     }
 }

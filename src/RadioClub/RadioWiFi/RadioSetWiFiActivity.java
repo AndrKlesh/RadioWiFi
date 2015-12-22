@@ -3,14 +3,18 @@ package RadioClub.RadioWiFi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
-public class RadioSetWiFiActivity extends Activity {
+public class RadioSetWiFiActivity extends Activity  {
 
     private Button discoverButton;
     private final IntentFilter intentFilter = new IntentFilter();
@@ -53,6 +57,7 @@ public class RadioSetWiFiActivity extends Activity {
         discoverButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                disconnect();
                 mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
 
                     @Override
@@ -85,6 +90,52 @@ public class RadioSetWiFiActivity extends Activity {
         super.onPause();
         unregisterReceiver(receiver);
     }
+
+    public void connect(WifiP2pDevice device) {
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+        config.wps.setup = WpsInfo.PBC;
+
+        mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+
+            @Override
+            public void onSuccess() {
+
+                final ChatFragment fragment = (ChatFragment) getFragmentManager()
+                        .findFragmentById(R.id.fragment_chat);
+                fragment.resetViews();
+                fragment.getView().setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                Toast.makeText(RadioSetWiFiActivity.this, "Connect failed. Retry.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void disconnect()
+    {
+        final ChatFragment fragment = (ChatFragment) getFragmentManager()
+                .findFragmentById(R.id.fragment_chat);
+        fragment.resetViews();
+
+        mManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
+
+            @Override
+            public void onFailure(int reasonCode) {
+
+            }
+
+            @Override
+            public void onSuccess() {
+                fragment.getView().setVisibility(View.GONE);
+            }
+
+        });
+    }
+
 
     public void resetData() {
 
