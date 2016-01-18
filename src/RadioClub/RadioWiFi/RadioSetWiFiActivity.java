@@ -10,16 +10,14 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
 public class RadioSetWiFiActivity extends Activity  {
 
-    private Button discoverButton;
     private final IntentFilter intentFilter = new IntentFilter();
-    private Channel mChannel;
-    private WifiP2pManager mManager;
+    private Channel channel;
+    private WifiP2pManager wifiP2pManager;
     private boolean isWifiP2pEnabled;
     private WiFiDirectBroadcastReceiver receiver;
 
@@ -38,6 +36,26 @@ public class RadioSetWiFiActivity extends Activity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initIntentFilter();
+
+        wifiP2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = wifiP2pManager.initialize(this, getMainLooper(), null);
+
+        initDiscoverPeers();
+        Button discoverButton = (Button) findViewById(R.id.main_discover_button);
+        discoverButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initDiscoverPeers();
+                final DeviceListFragment deviceListFragment = (DeviceListFragment) getFragmentManager()
+                        .findFragmentById(R.id.fragment_devicelist);
+                deviceListFragment.getView().setVisibility(View.VISIBLE);
+            }
+        });
+
+    }
+
+    private void initIntentFilter(){
         //  Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 
@@ -49,39 +67,31 @@ public class RadioSetWiFiActivity extends Activity  {
 
         // Indicates this device's details have changed.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+    }
 
-        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        mChannel = mManager.initialize(this, getMainLooper(), null);
+    private void initDiscoverPeers() {
+        disconnect();
+        wifiP2pManager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
 
-        discoverButton = (Button) findViewById(R.id.main_discover_button);
-        discoverButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                disconnect();
-                mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
+            public void onSuccess() {
+                Toast.makeText(RadioSetWiFiActivity.this, "Discovery Initiated",
+                        Toast.LENGTH_SHORT).show();
+            }
 
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(RadioSetWiFiActivity.this, "Discovery Initiated",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(int reasonCode) {
-                        Toast.makeText(RadioSetWiFiActivity.this, "Discovery Failed : " + reasonCode,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override
+            public void onFailure(int reasonCode) {
+                Toast.makeText(RadioSetWiFiActivity.this, "Discovery Failed : " + reasonCode,
+                        Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     /** register the BroadcastReceiver with the intent values to be matched */
     @Override
     public void onResume() {
         super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, this);
+        receiver = new WiFiDirectBroadcastReceiver(wifiP2pManager, channel, this);
         registerReceiver(receiver, intentFilter);
     }
 
@@ -91,20 +101,16 @@ public class RadioSetWiFiActivity extends Activity  {
         unregisterReceiver(receiver);
     }
 
-    public void connect(WifiP2pDevice device) {
-        WifiP2pConfig config = new WifiP2pConfig();
+    public void connect(final WifiP2pDevice device) {
+        final WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
         config.wps.setup = WpsInfo.PBC;
 
-        mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+        wifiP2pManager.connect(channel, config, new WifiP2pManager.ActionListener() {
 
             @Override
             public void onSuccess() {
 
-                final ChatFragment fragment = (ChatFragment) getFragmentManager()
-                        .findFragmentById(R.id.fragment_chat);
-                fragment.resetViews();
-                fragment.getView().setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -115,13 +121,12 @@ public class RadioSetWiFiActivity extends Activity  {
         });
     }
 
-    public void disconnect()
-    {
+    public void disconnect() {
         final ChatFragment fragment = (ChatFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_chat);
         fragment.resetViews();
 
-        mManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
+        wifiP2pManager.removeGroup(channel, new WifiP2pManager.ActionListener() {
 
             @Override
             public void onFailure(int reasonCode) {

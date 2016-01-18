@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-
+import android.view.View;
 
 
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
@@ -52,17 +52,20 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 return;
             }
 
-            NetworkInfo networkInfo = (NetworkInfo) intent
+            NetworkInfo networkInfo = intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
 
             if (networkInfo.isConnected()) {
-
                 // we are connected with the other device, request connection
                 // info to find group owner IP
+                final ChatFragment fragment = (ChatFragment)activity.getFragmentManager()
+                        .findFragmentById(R.id.fragment_chat);
+                fragment.resetViews();
+                manager.requestConnectionInfo(channel,fragment);
+                final DeviceListFragment deviceListFragment = (DeviceListFragment)activity.getFragmentManager()
+                        .findFragmentById(R.id.fragment_devicelist);
+                deviceListFragment.getView().setVisibility(View.GONE);
 
-               // DeviceDetailFragment fragment = (DeviceDetailFragment) activity
-               //         .getFragmentManager().findFragmentById(R.id.frag_detail);
-               // manager.requestConnectionInfo(channel, fragment);
             } else {
                 // It's a disconnect
                 activity.resetData();
