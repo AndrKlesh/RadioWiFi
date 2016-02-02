@@ -3,6 +3,7 @@ package RadioClub.RadioWiFi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -15,7 +16,7 @@ import android.widget.*;
 
 public class RadioSetWiFiActivity extends Activity  {
 
-    private final IntentFilter intentFilter = new IntentFilter();
+    private IntentFilter intentFilter;
     private Channel channel;
     private WifiP2pManager wifiP2pManager;
     private boolean isWifiP2pEnabled;
@@ -36,10 +37,12 @@ public class RadioSetWiFiActivity extends Activity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        disconnectWiFi();
         initIntentFilter();
 
         wifiP2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = wifiP2pManager.initialize(this, getMainLooper(), null);
+        receiver = new WiFiDirectBroadcastReceiver(wifiP2pManager, channel, this);
 
         initDiscoverPeers();
         Button discoverButton = (Button) findViewById(R.id.main_discover_button);
@@ -56,6 +59,7 @@ public class RadioSetWiFiActivity extends Activity  {
     }
 
     private void initIntentFilter(){
+        intentFilter = new IntentFilter();
         //  Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 
@@ -75,13 +79,14 @@ public class RadioSetWiFiActivity extends Activity  {
 
             @Override
             public void onSuccess() {
-                Toast.makeText(RadioSetWiFiActivity.this, "Discovery Initiated",
+                Toast.makeText(RadioSetWiFiActivity.this, getString(R.string.init_discovery),
                         Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(int reasonCode) {
-                Toast.makeText(RadioSetWiFiActivity.this, "Discovery Failed : " + reasonCode,
+                Toast.makeText(RadioSetWiFiActivity.this,
+                        String.format("%s : %d" ,getString(R.string.fail_discovery), reasonCode),
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -91,7 +96,6 @@ public class RadioSetWiFiActivity extends Activity  {
     @Override
     public void onResume() {
         super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(wifiP2pManager, channel, this);
         registerReceiver(receiver, intentFilter);
     }
 
@@ -115,7 +119,7 @@ public class RadioSetWiFiActivity extends Activity  {
 
             @Override
             public void onFailure(int reason) {
-                Toast.makeText(RadioSetWiFiActivity.this, "Connect failed. Retry.",
+                Toast.makeText(RadioSetWiFiActivity.this, getString(R.string.fail_connection),
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -141,6 +145,10 @@ public class RadioSetWiFiActivity extends Activity  {
         });
     }
 
+    public void disconnectWiFi() {
+        WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        wifi.disconnect();
+    }
 
     public void resetData() {
 

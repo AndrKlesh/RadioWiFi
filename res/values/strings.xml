@@ -5,4 +5,7 @@
     <string name="send_button">Send</string>
     <string name="hello">Hello RadioWifi</string>
     <string name="start_message_in_chat"><![CDATA[>]]></string>
+    <string name="init_discovery">Discovery Initiated</string>
+    <string name="fail_discovery">Discovery Failed</string>
+    <string name="fail_connection">Connect failed</string>
 </resources>

@@ -43,7 +43,7 @@ public class DataTransferThread extends Thread {
             client = serverSocket.accept();
             dataInputStream = new DataInputStream(client.getInputStream());
             dataOutputStream = new DataOutputStream(client.getOutputStream());
-            while (true) {
+            while (!this.isInterrupted()) {
                 final String receivedMessage = dataInputStream.readUTF();
                 fragment.getView().post(new Runnable() {
                     @Override
@@ -76,7 +76,7 @@ public class DataTransferThread extends Thread {
             dataInputStream = new DataInputStream(client.getInputStream());
             dataOutputStream = new DataOutputStream(client.getOutputStream());
 
-            while (true) {
+            while (!this.isInterrupted()) {
                 final String receivedMessage = dataInputStream.readUTF();
                 fragment.getView().post(new Runnable() {
                     @Override
